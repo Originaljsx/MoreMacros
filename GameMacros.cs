@@ -9,7 +9,6 @@ namespace MoreMacros;
 internal static unsafe class GameMacros {
     public const int SlotsPerSet = 100;
     private const int NativeNameLength = 20;
-    private const uint DefaultMacroIcon = 66001;
 
     public static uint CurrentJob {
         get {
@@ -52,7 +51,7 @@ internal static unsafe class GameMacros {
 
             var name = source.Name.Trim();
             macro->Clear();
-            macro->SetIcon(DefaultMacroIcon);
+            macro->SetIcon(source.IconId == 0 ? SavedMacro.DefaultIcon : source.IconId);
             macro->Name.SetString(name.Length > NativeNameLength ? name[..NativeNameLength] : name);
             macro->Lines[0].SetString($"/mm {name}");
 

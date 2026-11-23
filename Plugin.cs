@@ -16,6 +16,7 @@ public sealed class Plugin : IDalamudPlugin {
     [PluginService] internal static IChatGui Chat { get; private set; } = null!;
     [PluginService] internal static IDataManager Data { get; private set; } = null!;
     [PluginService] internal static IPluginLog Log { get; private set; } = null!;
+    [PluginService] internal static ITextureProvider Textures { get; private set; } = null!;
 
     internal Configuration Config { get; }
     internal MacroRunner Runner { get; }
@@ -25,6 +26,7 @@ public sealed class Plugin : IDalamudPlugin {
 
     public Plugin() {
         Config = PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        Config.Normalize();
         Runner = new MacroRunner();
         mainWindow = new MainWindow(this);
         windows.AddWindow(mainWindow);

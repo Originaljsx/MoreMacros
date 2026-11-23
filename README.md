@@ -8,7 +8,7 @@ https://raw.githubusercontent.com/Originaljsx/MoreMacros/main/repo.json
 
 <hr>
 
-To get started, open the macro window with `/moremacros`.
+To get started, open the macro window with `/moremacros`. It works like the game's macro window: click a slot, give it a name, icon and text. Pages are tabs above the grid, and macros can be dragged between slots.
 
 ## Features
 
@@ -27,7 +27,7 @@ Each macro can be tied to a job. If several macros share a name, `/mm <name>` ru
 
 ### Hotbars
 
-A hotbar can only hold a game macro. "Add to game macros" writes a one-line macro (`/mm <name>`) into the first empty Individual slot; drag that onto a hotbar.
+A hotbar can only hold a game macro. "Add to hotbar macros" writes a one-line macro (`/mm <name>`) into the first empty Individual slot; drag that onto a hotbar.
 
 ### Import
 
