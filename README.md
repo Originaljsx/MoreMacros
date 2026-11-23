@@ -27,7 +27,7 @@ Each macro can be tied to a job. If several macros share a name, `/mm <name>` ru
 
 ### Hotbars
 
-A hotbar can only hold a game macro. "Add to hotbar macros" writes a one-line macro (`/mm <name>`) into the first empty Individual slot; drag that onto a hotbar.
+Drag a macro from the grid straight onto a hotbar slot. Behind the scenes a hotbar can only hold a game macro, so this uses one Individual macro slot containing `/mm <name>` (reused if it already exists). "Add to hotbar macros" also writes a one-line macro (`/mm <name>`) into the first empty Individual slot; drag that onto a hotbar.
 
 ### Import
 

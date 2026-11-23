@@ -217,7 +217,7 @@ internal sealed class MainWindow : Window {
                 MoveOrSwap(dragFrom, slot);
                 selectedSlot = slot;
             } else if (hovered && dragFrom < 0 && macro != null) {
-                ImGui.SetTooltip($"{macro.Name}\n/mm {macro.Name.Trim()}");
+                ImGui.SetTooltip($"{macro.Name}\n/mm {macro.Name.Trim()}\nDrag onto a hotbar to place it there.");
             }
         }
 
@@ -229,7 +229,16 @@ internal sealed class MainWindow : Window {
                 DrawIcon(ImGui.GetForegroundDrawList(), dragged.IconId, mouse - size / 2, mouse + size / 2);
             }
 
-            if (released || !ImGui.IsMouseDown(ImGuiMouseButton.Left)) dragFrom = -1;
+            if (released || !ImGui.IsMouseDown(ImGuiMouseButton.Left)) {
+                // Released outside every ImGui window: try the game's hotbars.
+                var overImGui = ImGui.IsWindowHovered(ImGuiHoveredFlags.AnyWindow | ImGuiHoveredFlags.AllowWhenBlockedByActiveItem);
+                if (!overImGui && bySlot.TryGetValue(dragFrom, out var dropped)) {
+                    var message = Hotbars.DropAt(ImGui.GetMousePos(), dropped);
+                    if (message != null) status = message;
+                }
+
+                dragFrom = -1;
+            }
         }
     }
 

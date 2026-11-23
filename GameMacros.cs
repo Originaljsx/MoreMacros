@@ -67,4 +67,27 @@ internal static unsafe class GameMacros {
 
         return -1;
     }
+
+    /// <summary>
+    /// Finds a game macro that already launches this plugin macro, or creates one.
+    /// Returns the hotbar command id for it (set * 256 + index), or null if no slot is free.
+    /// </summary>
+    public static uint? FindOrCreateLauncher(SavedMacro source) {
+        var module = RaptureMacroModule.Instance();
+        if (module == null) return null;
+
+        var command = $"/mm {source.Name.Trim()}";
+        for (uint set = 0; set < 2; set++) {
+            for (uint index = 0; index < SlotsPerSet; index++) {
+                var macro = module->GetMacro(set, index);
+                if (macro == null || !macro->IsNotEmpty()) continue;
+                if (string.Equals(macro->Lines[0].ToString().Trim(), command, StringComparison.OrdinalIgnoreCase)) {
+                    return set * 256 + index;
+                }
+            }
+        }
+
+        var created = CreateHotbarStub(source);
+        return created < 0 ? null : (uint)created;
+    }
 }
