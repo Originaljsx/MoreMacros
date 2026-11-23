@@ -1,0 +1,15 @@
+{
+  "Author": "Originaljsx",
+  "Name": "More Macros",
+  "InternalName": "MoreMacros",
+  "Punchline": "Unlimited macro slots, with no 15 line limit.",
+  "Description": "Stores as many macros as you like outside the game's 100 slots and runs them through the game's own macro engine with /mm <name>. Macros can be longer than 15 lines and can have per-job variants that share one name, so a single hotbar button does the right thing on every job.",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "macro",
+    "macros",
+    "hotbar",
+    "utility"
+  ],
+  "RepoUrl": "https://github.com/Originaljsx/MoreMacros"
+}
