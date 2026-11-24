@@ -1,4 +1,4 @@
-**More Macros** is a Dalamud plugin for FFXIV that gives you unlimited macro slots, with no 15 line limit.
+**More Macros** is a Dalamud plugin for FFXIV that gives every job its own 100 Individual macros.
 
 <hr>
 
@@ -8,30 +8,20 @@ https://raw.githubusercontent.com/Originaljsx/MoreMacros/main/repo.json
 
 <hr>
 
-To get started, open the macro window with `/moremacros`. It works like the game's macro window: click a slot, give it a name, icon and text. Pages are tabs above the grid, and macros can be dragged between slots.
+## How it works
 
-## Features
+The game only has 100 Individual and 100 Shared macro slots. More Macros keeps a separate set of the 100 Individual
+macros for each job, and when you change job it swaps that job's set into the slots.
 
-### Unlimited macros
+- Hotbars point at slot numbers, so Individual #5 can be one macro on Warrior and a different one, with its own
+  name and icon, on Dragoon.
+- Everything stays native: edit macros in the game's macro window, drag them to hotbars, use `/micon`, keybinds.
+- Shared macros are never touched; use them for macros you want on every job.
+- The first time you play a job, it starts with a copy of the macros you had loaded.
+- If the game's macro window is open when you change job, the swap waits until you close it.
 
-Macros are stored by the plugin, outside the game's 100 Individual + 100 Shared slots. Run one with `/mm <name>`.
-They run through the game's own macro engine, so `/wait`, `<t>`, `/macrolock`, `/macroerror` and `/micon` work as usual.
-
-### No 15 line limit
-
-Longer macros are split into linked 15-line macros automatically. `/macrocancel`, or starting another macro, stops the whole chain.
-
-### Per-job variants
-
-Each macro can be tied to a job. If several macros share a name, `/mm <name>` runs the one for your current job and falls back to the "Any job" one.
-
-### Hotbars
-
-Drag a macro from the grid straight onto a hotbar slot. Behind the scenes a hotbar can only hold a game macro, so this uses one Individual macro slot containing `/mm <name>` (reused if it already exists). "Add to hotbar macros" also writes a one-line macro (`/mm <name>`) into the first empty Individual slot; drag that onto a hotbar.
-
-### Import
-
-Copies an existing game macro into the plugin. Auto-translate phrases are not preserved.
+Open `/moremacros` to see each job's set, copy one job's macros to another, or restore the Individual macros you
+had before installing the plugin.
 
 ## Building
 
