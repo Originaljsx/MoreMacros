@@ -15,6 +15,8 @@ internal sealed unsafe class MacroSets {
     /// <summary>Wait this long after the game's macro file is ready before the first swap of a session.</summary>
     private static readonly TimeSpan SettleTime = TimeSpan.FromSeconds(2);
 
+    private const string WaitingMessage = "Close the game's macro window to load this job's macros.";
+
     private readonly Configuration config;
     private ulong readyFor;
     private DateTime readySince;
@@ -73,12 +75,16 @@ internal sealed unsafe class MacroSets {
 
         var job = CurrentJob;
         var data = Current;
-        if (job == 0 || data == null || data.LoadedJob == job) return;
+        if (job == 0 || data == null) return;
+        if (data.LoadedJob == job) {
+            if (LastMessage == WaitingMessage) LastMessage = string.Empty;
+            return;
+        }
 
         // The game's macro window keeps its own copy of the macro being edited. Wait until it is closed so it
         // can't write that copy over the new job's macros.
         if (MacroWindowOpen) {
-            LastMessage = "Close the game's macro window to load this job's macros.";
+            LastMessage = WaitingMessage;
             return;
         }
 
@@ -90,7 +96,9 @@ internal sealed unsafe class MacroSets {
         data.OriginalBackup ??= current;
 
         // Keep whatever is in the slots now (including edits made in the game's macro window) for the job it belongs to.
-        if (data.LoadedJob != 0) data.Sets[data.LoadedJob] = current;
+        // If the slots are exactly another job's set, they don't belong to the loaded job (for example the game closed
+        // before it saved the last swap), so leave the loaded job's stored set alone.
+        if (data.LoadedJob != 0 && !BelongsToOtherJob(data, current)) data.Sets[data.LoadedJob] = current;
 
         if (data.Sets.TryGetValue(job, out var set)) {
             Write(set);
@@ -107,7 +115,7 @@ internal sealed unsafe class MacroSets {
     /// <summary>Replaces the current job's macros with a copy of another job's set.</summary>
     public bool CopyFrom(uint sourceJob) {
         var data = Current;
-        if (data == null || data.LoadedJob == 0 || !data.Sets.TryGetValue(sourceJob, out var source)) return false;
+        if (data == null || !CanEditSets(data) || !data.Sets.TryGetValue(sourceJob, out var source)) return false;
         if (sourceJob == data.LoadedJob) return true;
         Write(source);
         data.Sets[data.LoadedJob] = Clone(source);
@@ -119,7 +127,7 @@ internal sealed unsafe class MacroSets {
     /// <summary>Writes the macros from before More Macros was installed back into the slots, for the current job.</summary>
     public bool RestoreOriginal() {
         var data = Current;
-        if (data?.OriginalBackup == null || data.LoadedJob == 0) return false;
+        if (data?.OriginalBackup == null || !CanEditSets(data)) return false;
         Write(data.OriginalBackup);
         data.Sets[data.LoadedJob] = Clone(data.OriginalBackup);
         config.Save();
@@ -130,9 +138,41 @@ internal sealed unsafe class MacroSets {
     /// <summary>Saves edits made in the game's macro window into the current job's set.</summary>
     public void SaveCurrent() {
         var data = Current;
-        if (data == null || data.LoadedJob == 0) return;
-        data.Sets[data.LoadedJob] = Snapshot();
+        if (data == null || !CanEditSets(data)) return;
+        var current = Snapshot();
+        if (BelongsToOtherJob(data, current)) return;
+        data.Sets[data.LoadedJob] = current;
         config.Save();
+    }
+
+    /// <summary>Copy and restore act on the loaded set, so only allow them when that is the job you are on.</summary>
+    public bool CanEditSets(CharacterData data) => config.Enabled && data.LoadedJob != 0 && data.LoadedJob == CurrentJob;
+
+    private static bool BelongsToOtherJob(CharacterData data, StoredMacro[] current) {
+        if (data.Sets.TryGetValue(data.LoadedJob, out var loaded) && SameSet(loaded, current)) return false;
+        foreach (var (job, set) in data.Sets) {
+            if (job != data.LoadedJob && SameSet(set, current)) {
+                Plugin.Log.Warning($"Macro slots match {Jobs.Name(job)}'s set, not {Jobs.Name(data.LoadedJob)}'s; not saving them over {Jobs.Name(data.LoadedJob)}.");
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool SameSet(StoredMacro[] a, StoredMacro[] b) {
+        if (a.Length != b.Length) return false;
+        for (var i = 0; i < a.Length; i++) {
+            var x = a[i];
+            var y = b[i];
+            if (x.IconId != y.IconId || x.MacroIconRowId != y.MacroIconRowId) return false;
+            if (!x.Name.AsSpan().SequenceEqual(y.Name) || x.Lines.Length != y.Lines.Length) return false;
+            for (var l = 0; l < x.Lines.Length; l++) {
+                if (!x.Lines[l].AsSpan().SequenceEqual(y.Lines[l])) return false;
+            }
+        }
+
+        return true;
     }
 
     public static int CountUsed(StoredMacro[] set) => Array.FindAll(set, m => !m.IsEmpty).Length;

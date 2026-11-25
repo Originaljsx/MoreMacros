@@ -43,8 +43,12 @@ internal sealed class MainWindow : Window {
         // Keep the list current with edits made in the game's macro window.
         if (ImGui.IsWindowAppearing()) sets.SaveCurrent();
         // Copy and restore write into the slots, so they are blocked while the game's macro window is open.
-        var blocked = sets.IsMacroWindowOpen;
-        if (blocked) ImGui.TextColored(new Vector4(1, 0.8f, 0.3f, 1), "Close the game's macro window to copy or restore sets.");
+        var blocked = sets.IsMacroWindowOpen || !sets.CanEditSets(data);
+        if (sets.IsMacroWindowOpen) {
+            ImGui.TextColored(new Vector4(1, 0.8f, 0.3f, 1), "Close the game's macro window to copy or restore sets.");
+        } else if (!sets.CanEditSets(data)) {
+            ImGui.TextColored(new Vector4(1, 0.8f, 0.3f, 1), "Copy and restore need the option above on, and your current job's set loaded.");
+        }
 
         ImGui.Spacing();
         var ctrl = ImGui.GetIO().KeyCtrl;
